@@ -5,7 +5,7 @@ namespace Cancun.Booking.API.Business
   public interface IBookingBusiness
   {
 
-    IEnumerable<DateTime> GetEmptyDates(int roomId);
+    Task<IEnumerable<DateTime>> GetEmptyDates(int roomId);
 
     Task<IEnumerable<BookingListDto>> GetBookingListAsync(string passport, int countryId);
 

@@ -12,6 +12,12 @@ namespace Cancun.Booking.API.Repository
     { 
       _context = context ?? throw new ArgumentNullException(nameof(context));
     }
+
+    public async Task<bool> ExistsAsync(int roomId)
+    {
+      return await _context.Rooms.AnyAsync(a => a.Id == roomId);
+    }
+
     public async Task<IEnumerable<Room>> GetRoomsAsync()
     {
 

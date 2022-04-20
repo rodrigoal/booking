@@ -15,23 +15,31 @@ namespace Cancun.Booking.API.Controllers
       _bookingBusiness = bookingBusiness ?? throw new ArgumentNullException(nameof(bookingBusiness));
 
     }
-    
+
     [HttpGet]
     [Route("GetEmptyDates")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<IEnumerable<DateTime>> GetEmptyDates(int roomId)
+    public async Task<ActionResult<IEnumerable<DateTime>>> GetEmptyDates(int roomId)
     {
-
-      var emptyDates = _bookingBusiness.GetEmptyDates(roomId);
-
-      if (emptyDates == null)
+      try
       {
-        return NotFound();
+        var emptyDates = await _bookingBusiness.GetEmptyDates(roomId);
+
+        if (emptyDates == null)
+        {
+          return NotFound();
+        }
+
+        return Ok(emptyDates);
+      }
+      catch (Exception ex)
+      {
+
+        return BadRequest(ex.Message);
       }
 
-      return Ok(emptyDates);
 
     }
 
@@ -57,7 +65,7 @@ namespace Cancun.Booking.API.Controllers
     public async Task<ActionResult<IEnumerable<BookingDto>>> GetBooking(int bookingId, string passport, int countryId)
     {
       var booking = await _bookingBusiness.GetBookingAsync(bookingId, passport, countryId);
-      
+
       return Ok(booking);
     }
 
@@ -70,10 +78,10 @@ namespace Cancun.Booking.API.Controllers
     {
       try
       {
-        var booking =  await _bookingBusiness.AddBooking(bookingDto);
+        var booking = await _bookingBusiness.AddBooking(bookingDto);
 
-        return CreatedAtRoute("GetBooking", 
-          new { bookingId = booking.ID, passport = bookingDto.UserPassport, countryId = bookingDto.CountryID }, 
+        return CreatedAtRoute("GetBooking",
+          new { bookingId = booking.ID, passport = bookingDto.UserPassport, countryId = bookingDto.CountryID },
           booking);
       }
       catch (Exception ex)

@@ -8,16 +8,18 @@ namespace Cancun.Booking.API.Business
   {
     private readonly IBookingRepository _bookingRepository;
     private readonly IMapper _mapper;
+    private readonly IRoomRepository _roomRepository;
 
-    public BookingBusiness(IBookingRepository bookingRepository, IMapper mapper)
+    public BookingBusiness(IBookingRepository bookingRepository, IMapper mapper, IRoomRepository roomRepository)
     {
       _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
       _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+      _roomRepository = roomRepository ?? throw new ArgumentNullException(nameof(roomRepository));
     }
 
     public async Task<BookingListDto> AddBooking(BookingForCreationDto bookingForCreationDto)
     {
-     
+
       try
       {
         var bookingDto = _mapper.Map<BookingDto>(bookingForCreationDto);
@@ -86,11 +88,13 @@ namespace Cancun.Booking.API.Business
 
     }
 
-    public IEnumerable<DateTime> GetEmptyDates(int roomId)
+    public async Task<IEnumerable<DateTime>> GetEmptyDates(int roomId)
     {
 
-      var emptyDates = _bookingRepository.GetEmptyBookingsAsync(roomId);
+      if ((await _roomRepository.ExistsAsync(roomId)) == false)
+        throw new ApplicationException("This room does not exists. Choose another one.");
 
+      var emptyDates = _bookingRepository.GetEmptyBookingsAsync(roomId);
       var lstDates = new List<DateTime>();
       foreach (var date in emptyDates)
         lstDates.Add(date.EmptyDate);

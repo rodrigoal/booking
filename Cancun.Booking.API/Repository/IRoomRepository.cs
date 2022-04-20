@@ -5,5 +5,6 @@ namespace Cancun.Booking.API.Repository
   public interface IRoomRepository
   {
     Task<IEnumerable<Room>> GetRoomsAsync();
+    Task<bool> ExistsAsync(int roomId);
   }
 }
