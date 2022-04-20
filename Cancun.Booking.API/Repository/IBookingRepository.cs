@@ -6,7 +6,7 @@ namespace Cancun.Booking.API.Repository
   {
     Task<IEnumerable<Entities.Booking>> GetBookingListAsync(int userId);
     Task<Entities.Booking?> GetBookingAsync(int bookingId);
-    IEnumerable<Entities.fn_getEmptyBookings> GetEmptyBookingsAsync();
+    IEnumerable<Entities.fn_getEmptyBookings> GetEmptyBookingsAsync(int roomId);
     Task<bool> BookingExistsAsync(DateTime startDate, DateTime endDate, int? bookingId);
 
     Task<Entities.Booking?> GetBookingByStartDateAsync(DateTime startDate, int roomId);

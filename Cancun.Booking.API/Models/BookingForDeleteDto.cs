@@ -1,6 +1,6 @@
 ﻿namespace Cancun.Booking.API.Models
 {
-  public class BookingDeleteDto
+  public class BookingForDeleteDto
   {
     public int ID { get; set; }
     public string UserPassport { get; set; }

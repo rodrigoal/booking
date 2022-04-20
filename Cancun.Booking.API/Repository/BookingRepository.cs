@@ -63,11 +63,11 @@ namespace Cancun.Booking.API.Repository
     }
 
 
-    public IEnumerable<Entities.fn_getEmptyBookings> GetEmptyBookingsAsync()
+    public IEnumerable<Entities.fn_getEmptyBookings> GetEmptyBookingsAsync(int roomId)
     {
       DateTime startDate = DateTime.Now.AddDays(1);
      
-      var bookings =  _context.Fn_GetEmptyBookings.FromSqlRaw("select emptyDate from dbo.fn_getEmptyBookings({0})", startDate);
+      var bookings =  _context.Fn_GetEmptyBookings.FromSqlRaw("select emptyDate from dbo.fn_getEmptyBookings({0}, {1})", startDate, roomId);
 
       return bookings;
 

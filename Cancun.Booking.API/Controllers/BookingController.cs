@@ -21,10 +21,10 @@ namespace Cancun.Booking.API.Controllers
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<IEnumerable<DateTime>> GetEmptyDates()
+    public ActionResult<IEnumerable<DateTime>> GetEmptyDates(int roomId)
     {
 
-      var emptyDates = _bookingBusiness.GetEmptyDates();
+      var emptyDates = _bookingBusiness.GetEmptyDates(roomId);
 
       if (emptyDates == null)
       {
@@ -45,6 +45,10 @@ namespace Cancun.Booking.API.Controllers
 
       return Ok(list);
     }
+
+
+
+    // Just do it above because of AddBooking to return CreatedAtRoute. 
 
     [HttpGet("{bookingId}/{passport}/{countryId}", Name = "GetBooking")]
     //[Route("GetBooking/{bookingId}/{passport}/{countryId}")]
@@ -84,7 +88,7 @@ namespace Cancun.Booking.API.Controllers
     [Route("UpdateBooking")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateBooking(int bookingId, BookingDto bookingDto)
+    public async Task<IActionResult> UpdateBooking(int bookingId, BookingForUpdateDto bookingDto)
     {
       try
       {
@@ -104,7 +108,7 @@ namespace Cancun.Booking.API.Controllers
     [Route("DeleteBooking")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteBooking(BookingDeleteDto bookingDto)
+    public async Task<IActionResult> DeleteBooking(BookingForDeleteDto bookingDto)
     {
       try
       {

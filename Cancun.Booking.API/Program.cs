@@ -16,7 +16,7 @@ builder.Services.AddDbContext<BookingContext>(options => options.UseSqlServer(
     builder.Configuration["ConnectionStrings:BookingConnectionString"]
   ));
 
-
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IBookingBusiness, BookingBusiness>();

@@ -31,10 +31,9 @@ namespace Cancun.Booking.API.Business
 
         await _bookingRepository.AddBooking(booking);
 
-        var roomId = 1; //Fixed. For this test is always 1;
-        var bookingCreated = await _bookingRepository.GetBookingByStartDateAsync(bookingDto.BookingStartDate, roomId); //Get the added booking
+        var bookingCreated = await _bookingRepository.GetBookingByStartDateAsync(bookingDto.BookingStartDate, bookingForCreationDto.RoomID); //Get the added booking
         if (bookingCreated == null)
-          throw new ApplicationException("Some error ocurred to add this reservation.");
+          throw new ApplicationException("Some error occurred to add this reservation.");
 
         var bookingDtoCreated = _mapper.Map<BookingListDto>(bookingCreated);
 
@@ -47,14 +46,13 @@ namespace Cancun.Booking.API.Business
 
     }
 
- 
-
-    public async Task DeleteBooking(BookingDeleteDto bookingDto)
+    public async Task DeleteBooking(BookingForDeleteDto bookingDeleteDto)
     {
 
-      await ValidateBookingUser(new BookingDto() { ID = bookingDto.ID, UserPassport = bookingDto.UserPassport, CountryID = bookingDto.CountryID });
+      var bookingDto = _mapper.Map<BookingDto>(bookingDeleteDto);
+      await ValidateBookingUser(bookingDto);
 
-      var booking = await _bookingRepository.GetBookingAsync(bookingDto.ID);
+      var booking = await _bookingRepository.GetBookingAsync(bookingDeleteDto.ID);
 
       await _bookingRepository.DeleteBooking(booking);
 
@@ -88,10 +86,10 @@ namespace Cancun.Booking.API.Business
 
     }
 
-    public IEnumerable<DateTime> GetEmptyDates()
+    public IEnumerable<DateTime> GetEmptyDates(int roomId)
     {
 
-      var emptyDates = _bookingRepository.GetEmptyBookingsAsync();
+      var emptyDates = _bookingRepository.GetEmptyBookingsAsync(roomId);
 
       var lstDates = new List<DateTime>();
       foreach (var date in emptyDates)
@@ -101,13 +99,12 @@ namespace Cancun.Booking.API.Business
 
     }
 
-    public async Task UpdateBooking(int bookingId, BookingDto bookingDto)
+    public async Task UpdateBooking(int bookingId, BookingForUpdateDto bookingForUpdateDto)
     {
 
-      if (bookingDto == null || bookingDto.ID == null)
-      {
-        throw new ApplicationException("You must inform the ID of the booking to update it.");
-      }
+
+      var bookingDto = _mapper.Map<BookingDto>(bookingForUpdateDto);
+      bookingDto.ID = bookingId;
 
       await ValidateDates(bookingDto);
 
@@ -128,7 +125,7 @@ namespace Cancun.Booking.API.Business
         throw new ApplicationException("The booking ID does not exist.");
 
       if (booking.UserID != userId)
-        throw new ApplicationException("You can not update a booking that is not yours.");
+        throw new ApplicationException("You can not update/delete a booking that not yours.");
     }
 
     private async Task ValidateDates(BookingDto bookingDto)
@@ -151,7 +148,7 @@ namespace Cancun.Booking.API.Business
       {
         throw new ApplicationException("The bookings must start at least on the next day.");
       }
-      if (bookingDto.BookingEndDate > DateTime.Now.AddDays(30))
+      if (bookingDto.BookingEndDate > DateTime.Now.Date.AddDays(30))
       {
         throw new ApplicationException("The bookings must end at least next 30 days.");
       }
