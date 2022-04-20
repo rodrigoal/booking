@@ -25,7 +25,7 @@ namespace Cancun.Booking.API.Business
         var bookingDto = _mapper.Map<BookingDto>(bookingForCreationDto);
 
         //We could verify if the user already have some booking active. But I didn't here.
-        await ValidateDates(bookingDto);
+        await ValidateBooking(bookingDto);
 
         var booking = _mapper.Map<Entities.Booking>(bookingDto);
         booking.UserID = _bookingRepository.GetUserID(bookingDto.UserPassport, bookingDto.CountryID);
@@ -110,7 +110,7 @@ namespace Cancun.Booking.API.Business
       var bookingDto = _mapper.Map<BookingDto>(bookingForUpdateDto);
       bookingDto.ID = bookingId;
 
-      await ValidateDates(bookingDto);
+      await ValidateBooking(bookingDto);
 
       //Verify if I can update that booking.
       await ValidateBookingUser(bookingDto);
@@ -132,8 +132,12 @@ namespace Cancun.Booking.API.Business
         throw new ApplicationException("You can not update/delete a booking that not yours.");
     }
 
-    private async Task ValidateDates(BookingDto bookingDto)
+    private async Task ValidateBooking(BookingDto bookingDto)
     {
+
+      if ((await _roomRepository.ExistsAsync(bookingDto.RoomID)) == false)
+        throw new ApplicationException("This room does not exists. Choose another one.");
+
       if (bookingDto.BookingStartDate > bookingDto.BookingEndDate)
       {
         throw new ApplicationException("The end date must be greater than start date.");
