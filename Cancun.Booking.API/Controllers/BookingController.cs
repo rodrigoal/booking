@@ -18,8 +18,8 @@ namespace Cancun.Booking.API.Controllers
 
     [HttpGet]
     [Route("GetEmptyDates")]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<DateTime>>> GetEmptyDates(int roomId)
     {
@@ -27,10 +27,8 @@ namespace Cancun.Booking.API.Controllers
       {
         var emptyDates = await _bookingBusiness.GetEmptyDates(roomId);
 
-        if (emptyDates == null)
-        {
+        if (emptyDates.Count() == 0)
           return NotFound();
-        }
 
         return Ok(emptyDates);
       }
@@ -46,10 +44,13 @@ namespace Cancun.Booking.API.Controllers
     [HttpGet]
     [Route("GetBookingList/{passport}/{countryId}")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<BookingListDto>>> GetBookingList(string passport, int countryId)
     {
       var list = await _bookingBusiness.GetBookingListAsync(passport, countryId);
+      if (list.Count() == 0)
+        return NotFound();
 
       return Ok(list);
     }
