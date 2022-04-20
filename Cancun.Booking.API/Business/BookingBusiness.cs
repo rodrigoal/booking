@@ -15,15 +15,14 @@ namespace Cancun.Booking.API.Business
       _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
-    public async Task AddBooking(BookingDto bookingDto)
+    public async Task<BookingListDto> AddBooking(BookingForCreationDto bookingForCreationDto)
     {
-
-
-      //We could verify if the user already have some booking active. But I didn't here.
-
+     
       try
       {
+        var bookingDto = _mapper.Map<BookingDto>(bookingForCreationDto);
 
+        //We could verify if the user already have some booking active. But I didn't here.
         await ValidateDates(bookingDto);
 
         var booking = _mapper.Map<Entities.Booking>(bookingDto);
@@ -31,6 +30,15 @@ namespace Cancun.Booking.API.Business
         booking.CreatedDate = DateTime.Now;
 
         await _bookingRepository.AddBooking(booking);
+
+        var roomId = 1; //Fixed. For this test is always 1;
+        var bookingCreated = await _bookingRepository.GetBookingByStartDateAsync(bookingDto.BookingStartDate, roomId); //Get the added booking
+        if (bookingCreated == null)
+          throw new ApplicationException("Some error ocurred to add this reservation.");
+
+        var bookingDtoCreated = _mapper.Map<BookingListDto>(bookingCreated);
+
+        return bookingDtoCreated;
       }
       catch (Exception)
       {
@@ -129,17 +137,17 @@ namespace Cancun.Booking.API.Business
       {
         throw new ApplicationException("The end date must be greater than start date.");
       }
-      if ((bookingDto.BookingEndDate - bookingDto.BookingStartDate).TotalDays > 3)
+      if ((bookingDto.BookingEndDate - bookingDto.BookingStartDate).TotalDays > 2)
       {
         throw new ApplicationException("Your reservation can not have more than 3 days. Sorry.");
       }
 
-      if (await _bookingRepository.BookingExistsAsync(bookingDto.BookingStartDate, bookingDto.BookingEndDate))
+      if (await _bookingRepository.BookingExistsAsync(bookingDto.BookingStartDate, bookingDto.BookingEndDate, bookingDto.ID))
       {
         throw new ApplicationException("Unfortunately some dates of reservation are not available for now.");
       }
 
-      if (bookingDto.BookingStartDate < DateTime.Now.AddDays(1))
+      if (bookingDto.BookingStartDate < DateTime.Now.Date.AddDays(1))
       {
         throw new ApplicationException("The bookings must start at least on the next day.");
       }

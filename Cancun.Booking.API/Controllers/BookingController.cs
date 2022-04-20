@@ -46,8 +46,8 @@ namespace Cancun.Booking.API.Controllers
       return Ok(list);
     }
 
-    [HttpGet]
-    [Route("GetBooking/{bookingId}/{passport}/{countryId}")]
+    [HttpGet("{bookingId}/{passport}/{countryId}", Name = "GetBooking")]
+    //[Route("GetBooking/{bookingId}/{passport}/{countryId}")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<BookingDto>>> GetBooking(int bookingId, string passport, int countryId)
@@ -62,16 +62,15 @@ namespace Cancun.Booking.API.Controllers
     [Route("AddBooking")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> AddBooking(BookingDto bookingDto)
+    public async Task<IActionResult> AddBooking(BookingForCreationDto bookingDto)
     {
       try
       {
-         await _bookingBusiness.AddBooking(bookingDto);
+        var booking =  await _bookingBusiness.AddBooking(bookingDto);
 
-        return Ok();
-
-        //TODO: Change code above to work with new ID of created booking.
-        //return CreatedAtRoute("GetBooking", new { ID = bookingDto.ID });
+        return CreatedAtRoute("GetBooking", 
+          new { bookingId = booking.ID, passport = bookingDto.UserPassport, countryId = bookingDto.CountryID }, 
+          booking);
       }
       catch (Exception ex)
       {

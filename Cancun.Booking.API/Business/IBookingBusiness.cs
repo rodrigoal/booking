@@ -11,7 +11,7 @@ namespace Cancun.Booking.API.Business
 
     Task<BookingDto> GetBookingAsync(int bookingId, string passport, int countryId);
 
-    Task AddBooking(BookingDto bookingDto);
+    Task<BookingListDto> AddBooking(BookingForCreationDto bookingDto);
 
     Task UpdateBooking( int bookingId, BookingDto bookingDto);
 

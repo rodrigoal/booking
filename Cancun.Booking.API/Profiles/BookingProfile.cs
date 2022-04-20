@@ -10,6 +10,7 @@ namespace Cancun.Booking.API.Profiles
       CreateMap<Entities.Booking, Models.BookingDto>();
       CreateMap<Entities.Booking, Models.BookingListDto>();
       CreateMap<Models.BookingDto, Entities.Booking>();
+      CreateMap<Models.BookingForCreationDto, Models.BookingDto>();
     }
   }
 }

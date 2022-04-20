@@ -27,10 +27,16 @@ namespace Cancun.Booking.API.Repository
                                                                bookingId, booking.RoomID, booking.BookingStartDate, booking.BookingEndDate);
     }
 
-    public async Task<bool> BookingExistsAsync(DateTime startDate, DateTime endDate)
+    public async Task<bool> BookingExistsAsync(DateTime startDate, DateTime endDate, int? bookingId)
     {
 
-      return await _context.Bookings.AnyAsync(a => (startDate >= a.BookingStartDate && startDate <= a.BookingEndDate) || (endDate >= a.BookingStartDate && endDate <= a.BookingEndDate));
+      bool exists = false;
+      if (bookingId != null)
+        exists = await _context.Bookings.AnyAsync(a => (a.Id != bookingId) && ((startDate >= a.BookingStartDate && startDate <= a.BookingEndDate) || (endDate >= a.BookingStartDate && endDate <= a.BookingEndDate)));
+      else
+        exists = await _context.Bookings.AnyAsync(a => ((startDate >= a.BookingStartDate && startDate <= a.BookingEndDate) || (endDate >= a.BookingStartDate && endDate <= a.BookingEndDate)));
+
+      return exists;
 
     }
 
@@ -45,6 +51,10 @@ namespace Cancun.Booking.API.Repository
     public async Task<Entities.Booking?> GetBookingAsync(int bookingId)
     {
       return await _context.Bookings.FirstOrDefaultAsync(a => a.Id == bookingId);
+    }
+    public async Task<Entities.Booking?> GetBookingByStartDateAsync(DateTime startDate, int roomId)
+    {
+      return await _context.Bookings.FirstOrDefaultAsync(a => a.BookingStartDate == startDate && a.RoomID == roomId);
     }
 
     public async Task<IEnumerable<Entities.Booking>> GetBookingListAsync(int userId)
