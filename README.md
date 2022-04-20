@@ -4,6 +4,8 @@ This API was created using ASP .NET Core 6 with Entity Framework and SQL Azure.
 
 It is running at https://bookingtestapi.azurewebsites.net. You can try for a month.
 
+The API is in development mode and the swagger URL is: https://bookingtestapi.azurewebsites.net/swagger/index.html
+
 # Some considerations
 1. We have just one room. The room ID is 1;
 2. To identify the user, you can input a passport (string) and a country id (int);
