@@ -8,9 +8,10 @@ The API is in development mode and the swagger URL is: https://bookingtestapi.az
 
 # Some considerations
 1. We have just one room. The room ID is 1;
-2. To identify the user, you can input a passport (string) and a country id (int);
+2. To identify the user, you can input a passport (string) and a country id (int); If you are new, we will use the passport and country id to create your user.
 3. You can see a list of countries by the API;
 4. We can just update or delete my own bookings;
+5. The database is using datetime on UTC 0.
 
 # Requirements
 1. You can not booking for no longer than 3 days;
@@ -32,4 +33,5 @@ The API is in development mode and the swagger URL is: https://bookingtestapi.az
 3. We are using Models and Entities to separate the concepts that user's can work;
 4. We enable the swagger for just test purposes;
 5. The business classes are validating some rules, but it could be at the sql procedures too;
-6. Starting a new api project is a good opportunity to create a layout using base concepts and services that will be very useful to the following projects;
+6. The code are not properly documented, but if it is necessary, we can do it. We considered that variables names are clear to understand the code.
+7. Starting a new api project is a good opportunity to create a layout using base concepts and services that will be very useful to the following projects;
