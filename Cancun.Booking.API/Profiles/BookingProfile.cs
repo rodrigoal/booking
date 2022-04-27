@@ -6,7 +6,6 @@ namespace Cancun.Booking.API.Profiles
   {
     public BookingProfile()
     {
-      CreateMap<Entities.fn_getEmptyBookings, Models.EmptyDateDto>();
       CreateMap<Entities.Booking, Models.BookingDto>();
       CreateMap<Entities.Booking, Models.BookingListDto>();
       CreateMap<Models.BookingDto, Entities.Booking>();

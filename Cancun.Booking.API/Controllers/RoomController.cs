@@ -20,6 +20,10 @@ namespace Cancun.Booking.API.Controllers
       
     }
 
+    /// <summary>
+    /// Returns the list of rooms availables to do an reservation.
+    /// </summary>
+    /// <returns>List of rooms</returns>
     [HttpGet]
     [Route("GetRooms")]
     public async Task<ActionResult<IEnumerable<RoomDto>>> GetRooms()

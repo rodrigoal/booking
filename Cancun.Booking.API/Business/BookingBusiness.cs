@@ -33,11 +33,7 @@ namespace Cancun.Booking.API.Business
 
         await _bookingRepository.AddBooking(booking);
 
-        var bookingCreated = await _bookingRepository.GetBookingByStartDateAsync(bookingDto.BookingStartDate, bookingForCreationDto.RoomID); //Get the added booking
-        if (bookingCreated == null)
-          throw new ApplicationException("Some error occurred to add this reservation.");
-
-        var bookingDtoCreated = _mapper.Map<BookingListDto>(bookingCreated);
+        var bookingDtoCreated = _mapper.Map<BookingListDto>(booking);
 
         return bookingDtoCreated;
       }
@@ -52,11 +48,15 @@ namespace Cancun.Booking.API.Business
     {
 
       var bookingDto = _mapper.Map<BookingDto>(bookingDeleteDto);
-      await ValidateBookingUser(bookingDto);
+      await ValidateBookingUpdateDelete(bookingDto);
 
       var booking = await _bookingRepository.GetBookingAsync(bookingDeleteDto.ID);
+      if (booking != null)
+      {
+        _bookingRepository.DeleteBooking(booking);
+        await _bookingRepository.SaveChangesAsync();
+      }
 
-      await _bookingRepository.DeleteBooking(booking);
 
     }
 
@@ -74,7 +74,7 @@ namespace Cancun.Booking.API.Business
     {
       try
       {
-        await ValidateBookingUser(new BookingDto() { ID = bookingId, UserPassport = passport, CountryID = countryId });
+        await ValidateBookingUpdateDelete(new BookingDto() { ID = bookingId, UserPassport = passport, CountryID = countryId });
 
         var booking = await _bookingRepository.GetBookingAsync(bookingId);
 
@@ -95,33 +95,31 @@ namespace Cancun.Booking.API.Business
         throw new ApplicationException("This room does not exists. Choose another one.");
 
       var emptyDates = _bookingRepository.GetEmptyBookingsAsync(roomId);
-      var lstDates = new List<DateTime>();
-      foreach (var date in emptyDates)
-        lstDates.Add(date.EmptyDate);
 
-      return lstDates;
+      return emptyDates;
 
     }
 
     public async Task UpdateBooking(int bookingId, BookingForUpdateDto bookingForUpdateDto)
     {
 
-
       var bookingDto = _mapper.Map<BookingDto>(bookingForUpdateDto);
       bookingDto.ID = bookingId;
 
       await ValidateBooking(bookingDto);
-
       //Verify if I can update that booking.
-      await ValidateBookingUser(bookingDto);
+      await ValidateBookingUpdateDelete(bookingDto);
 
-      var bookingUpdate = _mapper.Map<Entities.Booking>(bookingDto);
+      var bookingEntity = await _bookingRepository.GetBookingAsync(bookingId);
 
-      await _bookingRepository.UpdateBooking(bookingId, bookingUpdate);
+      _mapper.Map(bookingDto, bookingEntity);
+
+      await _bookingRepository.SaveChangesAsync();
+
 
     }
 
-    private async Task ValidateBookingUser(BookingDto bookingDto)
+    private async Task ValidateBookingUpdateDelete(BookingDto bookingDto)
     {
       var userId = _bookingRepository.GetUserID(bookingDto.UserPassport, bookingDto.CountryID);
       var booking = await _bookingRepository.GetBookingAsync(bookingDto.ID.Value);

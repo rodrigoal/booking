@@ -19,7 +19,10 @@ namespace Cancun.Booking.API.Controllers
       _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
       
     }
-
+    /// <summary>
+    /// Returns the list of countries used to add an User (customer)
+    /// </summary>
+    /// <returns>List of countries</returns>
     [HttpGet]
     [Route("GetCountries")]
     public async Task<ActionResult<IEnumerable<CountryDto>>> GetCountries()

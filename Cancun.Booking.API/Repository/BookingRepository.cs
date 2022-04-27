@@ -14,18 +14,37 @@ namespace Cancun.Booking.API.Repository
     public async Task AddBooking(Entities.Booking booking)
     {
 
-      //_context.Bookings.Add(booking);
-      await _context.Database.ExecuteSqlRawAsync("exec pr_genBooking @roomId = {0}, @userId ={1}, @bookingStartDate = {2}, @bookingEndDate = {3}",
-                                                               booking.RoomID, booking.UserID, booking.BookingStartDate, booking.BookingEndDate);
-      
+      _context.Bookings.Add(booking);
+      await _context.SaveChangesAsync();
+
+      DateTime dateToAdd = booking.BookingStartDate;
+
+      while (dateToAdd <= booking.BookingEndDate)
+      {
+        _context.BookingDetails.Add(new Entities.BookingDetail()
+        {
+          BookingID = booking.Id,
+          BookingDate = booking.BookingStartDate
+        });
+        dateToAdd = dateToAdd.Date.AddDays(1);
+      }
+      await _context.SaveChangesAsync();
+
+      //The old method with procedures
+      //await _context.Database.ExecuteSqlRawAsync("exec pr_genBooking @roomId = {0}, @userId ={1}, @bookingStartDate = {2}, @bookingEndDate = {3}",
+      //                                                         booking.RoomID, booking.UserID, booking.BookingStartDate, booking.BookingEndDate);
+
 
     }
 
-    public async Task UpdateBooking(int bookingId, Entities.Booking booking)
-    {
-      await _context.Database.ExecuteSqlRawAsync("exec pr_genBooking @id={0}, @roomId = {1}, @bookingStartDate = {2}, @bookingEndDate = {3}, @operation = 'u'",
-                                                               bookingId, booking.RoomID, booking.BookingStartDate, booking.BookingEndDate);
-    }
+    //public async Task UpdateBooking(int bookingId, Entities.Booking booking)
+    //{
+
+
+    //  //The old method with procedures
+    //  //await _context.Database.ExecuteSqlRawAsync("exec pr_genBooking @id={0}, @roomId = {1}, @bookingStartDate = {2}, @bookingEndDate = {3}, @operation = 'u'",
+    //  //                                                         bookingId, booking.RoomID, booking.BookingStartDate, booking.BookingEndDate);
+    //}
 
     public async Task<bool> BookingExistsAsync(DateTime startDate, DateTime endDate, int? bookingId)
     {
@@ -40,11 +59,14 @@ namespace Cancun.Booking.API.Repository
 
     }
 
-    public async Task DeleteBooking(Entities.Booking booking)
+    public void DeleteBooking(Entities.Booking booking)
     {
-      await _context.Database.ExecuteSqlRawAsync("exec pr_genBooking @id = {0}, @operation = 'd'", booking.Id!);
-                                                               
-      //_context.Bookings.Remove(booking);
+
+      booking.BookingDetails.Clear();
+      _context.Bookings.Remove(booking);
+
+      //The old method with procedures
+      //await _context.Database.ExecuteSqlRawAsync("exec pr_genBooking @id = {0}, @operation = 'd'", booking.Id!);
 
     }
 
@@ -63,13 +85,24 @@ namespace Cancun.Booking.API.Repository
     }
 
 
-    public IEnumerable<Entities.fn_getEmptyBookings> GetEmptyBookingsAsync(int roomId)
+    public IEnumerable<DateTime> GetEmptyBookingsAsync(int roomId)
     {
-      DateTime startDate = DateTime.Now.AddDays(1);
-     
-      var bookings =  _context.Fn_GetEmptyBookings.FromSqlRaw("select emptyDate from dbo.fn_getEmptyBookings({0}, {1})", startDate, roomId);
+      DateTime startDate = DateTime.Now.Date.AddDays(1);
+      DateTime dateToAdd = startDate;
 
-      return bookings;
+      var bookingDetails = _context.BookingDetails.Include(a => a.Booking)
+                                    .Where(b => b.Booking.RoomID == roomId && b.BookingDate >= startDate);
+
+      List<DateTime> lstDates = new List<DateTime>();
+      for (int i = 0; i < 30; i++)
+      {
+        lstDates.Add(dateToAdd);
+        dateToAdd = dateToAdd.AddDays(1);
+      }
+
+      var freeDates = lstDates.Where(a => bookingDetails.All(b => b.BookingDate != a)).ToList();
+
+      return freeDates;
 
     }
 
@@ -83,7 +116,7 @@ namespace Cancun.Booking.API.Repository
         _context.SaveChanges();
       }
       user = _context.Users.Where(a => a.Passport == userPassport && a.CountryID == countryID).FirstOrDefault();
-      
+
       return user.Id.Value;
     }
 
@@ -92,6 +125,6 @@ namespace Cancun.Booking.API.Repository
       return await _context.SaveChangesAsync() >= 0;
     }
 
-   
+
   }
 }

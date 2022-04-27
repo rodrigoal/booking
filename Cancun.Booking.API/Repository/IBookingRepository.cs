@@ -6,15 +6,13 @@ namespace Cancun.Booking.API.Repository
   {
     Task<IEnumerable<Entities.Booking>> GetBookingListAsync(int userId);
     Task<Entities.Booking?> GetBookingAsync(int bookingId);
-    IEnumerable<Entities.fn_getEmptyBookings> GetEmptyBookingsAsync(int roomId);
+    IEnumerable<DateTime> GetEmptyBookingsAsync(int roomId);
     Task<bool> BookingExistsAsync(DateTime startDate, DateTime endDate, int? bookingId);
 
     Task<Entities.Booking?> GetBookingByStartDateAsync(DateTime startDate, int roomId);
 
     Task AddBooking(Entities.Booking booking);
-    Task DeleteBooking(Entities.Booking booking);
-
-    Task UpdateBooking(int bookingId, Entities.Booking booking);
+    void DeleteBooking(Entities.Booking booking);
 
     Task<bool> SaveChangesAsync();
     int GetUserID(string userPassport, int countryID);
