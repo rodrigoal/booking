@@ -1,3 +1,4 @@
+using Cancun.Booking.API.Middleware;
 using Cancun.Booking.Application;
 using Cancun.Booking.Persistence;
 using MediatR;
@@ -15,6 +16,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplicationServices();
 builder.Services.AddPersistenceServices(builder.Configuration);
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -24,6 +26,7 @@ if (app.Environment.IsDevelopment())
   app.UseSwaggerUI();
 }
 
+app.UseCustomExceptionHandler();
 app.UseHttpsRedirection();
 
 //app.UseRouting();

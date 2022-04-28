@@ -25,6 +25,7 @@ namespace Cancun.Booking.API.Tests.Bookings.Commands
     private readonly IMapper _mapper;
     private readonly IBookingRepository _bookingRepository;
     private readonly IRoomRepository _roomRepository;
+    private readonly IUserRepository _userRepository;
     private readonly BookingContext _bookingContext;
     private DbContextOptions<BookingContext> _dbContextOptions;
 
@@ -52,6 +53,7 @@ namespace Cancun.Booking.API.Tests.Bookings.Commands
       _bookingContext = new BookingContext(_dbContextOptions);
       _bookingRepository = new BookingRepository(_bookingContext);
       _roomRepository = new RoomRepository(_bookingContext);
+      _userRepository = new UserRepository(_bookingContext);
 
       ConfigureDbContext();
     }
@@ -100,7 +102,7 @@ namespace Cancun.Booking.API.Tests.Bookings.Commands
       var passport = "123";
       var countryId = 27;
 
-      var handler = new DeleteBookingCommandHandler(_mapper, _bookingRepository);
+      var handler = new DeleteBookingCommandHandler(_mapper, _bookingRepository, _userRepository);
       var result = await handler.Handle(new DeleteBookingCommand()
       {
         ID = 1,
@@ -109,8 +111,7 @@ namespace Cancun.Booking.API.Tests.Bookings.Commands
 
       }, System.Threading.CancellationToken.None);
 
-      //Assert.IsType<DeleteBookingCommand>(result);
-      //Assert.NotNull(result);
+   
 
       Assert.True(_bookingContext.Bookings.Count() == 0);
 

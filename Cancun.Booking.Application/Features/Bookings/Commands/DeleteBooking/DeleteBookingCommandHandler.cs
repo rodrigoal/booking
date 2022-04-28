@@ -14,12 +14,14 @@ namespace Cancun.Booking.Application.Features.Bookings.Commands.DeleteBooking
   public class DeleteBookingCommandHandler : IRequestHandler<DeleteBookingCommand>
   {
     private readonly IMapper _mapper;
-    private readonly IAsyncRepository<Reservation> _bookingRepository;
+    private readonly IBookingRepository _bookingRepository;
+    private readonly IUserRepository _userRepository;
 
-    public DeleteBookingCommandHandler(IMapper mapper, IAsyncRepository<Reservation> bookingRepository)
+    public DeleteBookingCommandHandler(IMapper mapper, IBookingRepository bookingRepository, IUserRepository userRepository)
     {
       _mapper = mapper;
       _bookingRepository = bookingRepository;
+      _userRepository = userRepository;
     }
 
     public async Task<Unit> Handle(DeleteBookingCommand request, CancellationToken cancellationToken)
@@ -31,7 +33,18 @@ namespace Cancun.Booking.Application.Features.Bookings.Commands.DeleteBooking
         throw new NotFoundException(nameof(Reservation), request.ID);
       }
 
-      await _bookingRepository.DeleteAsync(bookingToDelete);
+      var validator = new DeleteBookingCommandValidator(_bookingRepository, _userRepository);
+      var validationResult = await validator.ValidateAsync(request);
+
+      
+      if (validationResult.Errors.Count > 0)
+      {
+        throw new ValidationException(validationResult);
+      }
+      else
+      {
+        await _bookingRepository.DeleteAsync(bookingToDelete);
+      }
 
       return Unit.Value;
     }
