@@ -1,6 +1,6 @@
-﻿using AutoMapper;
-using Cancun.Booking.API.Models;
-using Cancun.Booking.API.Repository;
+﻿
+using Cancun.Booking.Application.Features.Countries.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cancun.Booking.API.Controllers
@@ -10,27 +10,24 @@ namespace Cancun.Booking.API.Controllers
   [Route("api/country")]
   public class CountryController : ControllerBase
   {
-    private readonly ICountryRepository _countryRepository;
-    private readonly IMapper _mapper;
+    private readonly IMediator _mediator;
 
-    public CountryController(ICountryRepository countryRepository, IMapper mapper)
+    public CountryController(IMediator mediator)
     {
-      _countryRepository = countryRepository ?? throw new ArgumentNullException(nameof(countryRepository));
-      _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-      
+      _mediator = mediator;
+
     }
     /// <summary>
     /// Returns the list of countries used to add an User (customer)
     /// </summary>
     /// <returns>List of countries</returns>
-    [HttpGet]
-    [Route("GetCountries")]
-    public async Task<ActionResult<IEnumerable<CountryDto>>> GetCountries()
+    [HttpGet("all", Name = "GetCountries")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<CountryListVm>>> GetCountries()
     {
 
-      var countries = await _countryRepository.GetCountriesAsync();
-
-      return Ok(_mapper.Map<IEnumerable<CountryDto>>(countries));
+      var countries = await _mediator.Send(new GetCountryListQuery());
+      return Ok(countries);
     }
   }
 }

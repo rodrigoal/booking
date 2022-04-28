@@ -1,6 +1,6 @@
-using Cancun.Booking.API.Business;
-using Cancun.Booking.API.DbContexts;
-using Cancun.Booking.API.Repository;
+using Cancun.Booking.Application;
+using Cancun.Booking.Persistence;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,16 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<BookingContext>(options => options.UseSqlServer(
-    builder.Configuration["ConnectionStrings:BookingConnectionString"]
-  ));
-
-builder.Services.AddScoped<IRoomRepository, RoomRepository>();
-builder.Services.AddScoped<ICountryRepository, CountryRepository>();
-builder.Services.AddScoped<IBookingRepository, BookingRepository>();
-builder.Services.AddScoped<IBookingBusiness, BookingBusiness>();
-
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddApplicationServices();
+builder.Services.AddPersistenceServices(builder.Configuration);
 
 var app = builder.Build();
 

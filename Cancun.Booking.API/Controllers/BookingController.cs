@@ -1,5 +1,10 @@
-﻿using Cancun.Booking.API.Business;
-using Cancun.Booking.API.Models;
+﻿
+using Cancun.Booking.Application.Features.Bookings.Commands.AddBooking;
+using Cancun.Booking.Application.Features.Bookings.Commands.DeleteBooking;
+using Cancun.Booking.Application.Features.Bookings.Commands.UpdateBooking;
+using Cancun.Booking.Application.Features.Bookings.Queries.GetAvailableDates;
+using Cancun.Booking.Application.Features.Bookings.Queries.GetBookingList;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cancun.Booking.API.Controllers
@@ -8,11 +13,12 @@ namespace Cancun.Booking.API.Controllers
   [Route("api/booking")]
   public class BookingController : ControllerBase
   {
-    private readonly IBookingBusiness _bookingBusiness;
 
-    public BookingController(IBookingBusiness bookingBusiness)
+    private readonly IMediator _mediator;
+
+    public BookingController(IMediator mediator)
     {
-      _bookingBusiness = bookingBusiness ?? throw new ArgumentNullException(nameof(bookingBusiness));
+      _mediator = mediator;
 
     }
     /// <summary>
@@ -20,16 +26,15 @@ namespace Cancun.Booking.API.Controllers
     /// </summary>
     /// <param name="roomId">Room ID</param>
     /// <returns>List of Dates</returns>
-    [HttpGet]
-    [Route("GetEmptyDates")]
+    [HttpGet("getavailabledates/{roomId}", Name = "GetAvailableDates")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<DateTime>>> GetEmptyDates(int roomId)
+    public async Task<ActionResult<IEnumerable<DateTime>>> GetAvailableDates(int roomId)
     {
       try
       {
-        var emptyDates = await _bookingBusiness.GetEmptyDates(roomId);
+        var emptyDates = await _mediator.Send(new GetAvailableDatesQuery() { RoomId = roomId });
 
         if (emptyDates.Count() == 0)
           return NotFound();
@@ -50,14 +55,13 @@ namespace Cancun.Booking.API.Controllers
     /// <param name="passport">User Passport</param>
     /// <param name="countryId">Country ID of the user</param>
     /// <returns></returns>
-    [HttpGet]
-    [Route("GetBookingList/{passport}/{countryId}")]
+    [HttpGet("getbookinglist/{passport}/{countryId}", Name = "GetBookingList")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<BookingListDto>>> GetBookingList(string passport, int countryId)
+    public async Task<ActionResult<List<BookingListDto>>> GetBookingList(string passport, int countryId)
     {
-      var list = await _bookingBusiness.GetBookingListAsync(passport, countryId);
+      var list = await _mediator.Send(new GetBookingListQuery() { Passport = passport, CountryId = countryId });
       if (list.Count() == 0)
         return NotFound();
 
@@ -66,51 +70,50 @@ namespace Cancun.Booking.API.Controllers
 
 
 
-    // Just did it above because of AddBooking to return CreatedAtRoute. 
-    /// <summary>
-    /// Get an already created booking passing the ID, user passport and countryId.
-    /// </summary>
-    /// <param name="bookingId">Booking ID</param>
-    /// <param name="passport">User Passport</param>
-    /// <param name="countryId">Country ID of the user</param>
-    /// <returns></returns>
-    [HttpGet("{bookingId}/{passport}/{countryId}", Name = "GetBooking")]
-    //[Route("GetBooking/{bookingId}/{passport}/{countryId}")]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<BookingDto>> GetBooking(int bookingId, string passport, int countryId)
-    {
-      try
-      {
-        var booking = await _bookingBusiness.GetBookingAsync(bookingId, passport, countryId);
+    //// Just did it above because of AddBooking to return CreatedAtRoute. 
+    ///// <summary>
+    ///// Get an already created booking passing the ID, user passport and countryId.
+    ///// </summary>
+    ///// <param name="bookingId">Booking ID</param>
+    ///// <param name="passport">User Passport</param>
+    ///// <param name="countryId">Country ID of the user</param>
+    ///// <returns></returns>
+    //[HttpGet("{bookingId}/{passport}/{countryId}", Name = "GetBooking")]
+    ////[Route("GetBooking/{bookingId}/{passport}/{countryId}")]
+    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+    //[ProducesResponseType(StatusCodes.Status200OK)]
+    //public async Task<ActionResult<BookingDto>> GetBooking(int bookingId, string passport, int countryId)
+    //{
+    //  try
+    //  {
+    //    var booking = await _bookingBusiness.GetBookingAsync(bookingId, passport, countryId);
 
-        return Ok(booking);
-      }
-      catch (Exception ex)
-      {
-        return BadRequest(ex.Message);
-      }
+    //    return Ok(booking);
+    //  }
+    //  catch (Exception ex)
+    //  {
+    //    return BadRequest(ex.Message);
+    //  }
 
-    }
+    //}
 
     /// <summary>
     /// Method to create a reservation.
     /// </summary>
     /// <param name="bookingDto">Object with roomId, UserPassport and CountryID (to identify the customer), and Start and End dates.</param>
     /// <returns>A Route with object of booking if success, or BadRequest if occurred an error.</returns>
-    [HttpPost]
-    [Route("AddBooking")]
+    [HttpPost(Name = "AddBooking")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> AddBooking(BookingForCreationDto bookingDto)
+    public async Task<ActionResult<AddBookingCommandResponse>> AddBooking([FromBody] AddBookingCommand addBookingCommand)
     {
       try
       {
-        var booking = await _bookingBusiness.AddBooking(bookingDto);
+        var booking = await _mediator.Send(addBookingCommand);
 
         return CreatedAtRoute("GetBooking",
-          new { bookingId = booking.ID, passport = bookingDto.UserPassport, countryId = bookingDto.CountryID },
-          booking);
+          new { bookingId = booking.Booking.ID, passport = booking.Booking.UserPassport, countryId = booking.Booking.CountryID },
+          booking.Booking);
       }
       catch (Exception ex)
       {
@@ -125,15 +128,15 @@ namespace Cancun.Booking.API.Controllers
     /// <param name="bookingId">Booking ID</param>
     /// <param name="bookingDto">Object with roomId, UserPassport and CountryID, and the Start and End Dates</param>
     /// <returns>NoContent if success, or Badrequest if occurred an error</returns>
-    [HttpPut]
-    [Route("UpdateBooking")]
+    [HttpPut(Name = "UpdateBooking")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateBooking(int bookingId, BookingForUpdateDto bookingDto)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> UpdateBooking([FromBody] UpdateBookingCommand updateBookingCommand)
     {
       try
       {
-        await _bookingBusiness.UpdateBooking(bookingId, bookingDto);
+        await _mediator.Send(updateBookingCommand);
 
         return NoContent();
       }
@@ -149,15 +152,14 @@ namespace Cancun.Booking.API.Controllers
     /// </summary>
     /// <param name="bookingDto">Object having the Id, UserPassport and CountryID</param>
     /// <returns>Returns NoContent if success, or BadRequest if occurred an error.</returns>
-    [HttpDelete]
-    [Route("DeleteBooking")]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpDelete(Name = "DeleteBooking")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteBooking(BookingForDeleteDto bookingDto)
+    public async Task<IActionResult> DeleteBooking([FromBody] DeleteBookingCommand deleteBookingCommand)
     {
       try
       {
-        await _bookingBusiness.DeleteBooking(bookingDto);
+        await _mediator.Send(deleteBookingCommand);
 
         return NoContent();
       }

@@ -1,6 +1,5 @@
-﻿using AutoMapper;
-using Cancun.Booking.API.Models;
-using Cancun.Booking.API.Repository;
+﻿using Cancun.Booking.Application.Features.Rooms.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cancun.Booking.API.Controllers
@@ -10,28 +9,26 @@ namespace Cancun.Booking.API.Controllers
   [Route("api/room")]
   public class RoomController : ControllerBase
   {
-    private readonly IRoomRepository _roomRepository;
-    private readonly IMapper _mapper;
 
-    public RoomController(IRoomRepository roomRepository, IMapper mapper)
+    private readonly IMediator _mediator;
+
+    public RoomController(IMediator mediator)
     {
-      _roomRepository = roomRepository ?? throw new ArgumentNullException(nameof(roomRepository));
-      _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-      
+      _mediator = mediator;
+
     }
 
     /// <summary>
     /// Returns the list of rooms availables to do an reservation.
     /// </summary>
     /// <returns>List of rooms</returns>
-    [HttpGet]
-    [Route("GetRooms")]
-    public async Task<ActionResult<IEnumerable<RoomDto>>> GetRooms()
+    [HttpGet("all", Name = "GetRooms")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<RoomListVm>>> GetRooms()
     {
 
-      var rooms = await _roomRepository.GetRoomsAsync();
-
-      return Ok(_mapper.Map<IEnumerable<RoomDto>>(rooms));
+      var rooms = await _mediator.Send(new GetRoomListQuery());
+      return Ok(rooms);
     }
   }
 }
