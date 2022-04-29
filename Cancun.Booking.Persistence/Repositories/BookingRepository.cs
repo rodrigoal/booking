@@ -16,7 +16,7 @@ namespace Cancun.Booking.Persistence.Repositories
 
     }
 
-    public async Task AddBooking(Reservation booking)
+    public async Task<Reservation> AddBooking(Reservation booking)
     {
       _dbContext.Bookings.Add(booking);
       await _dbContext.SaveChangesAsync();
@@ -29,12 +29,13 @@ namespace Cancun.Booking.Persistence.Repositories
         _dbContext.BookingDetails.Add(new BookingDetail()
         {
           BookingID = booking.Id,
-          BookingDate = booking.BookingStartDate
+          BookingDate = dateToAdd
         });
         dateToAdd = dateToAdd.Date.AddDays(1);
       }
       await _dbContext.SaveChangesAsync();
 
+      return booking;
     }
 
     public async Task<bool> BookingExistsAsync(DateTime startDate, DateTime endDate, int? bookingId = null)
@@ -48,20 +49,46 @@ namespace Cancun.Booking.Persistence.Repositories
       return exists;
     }
 
-    public void DeleteBooking(Reservation booking)
+    public async Task DeleteBooking(Reservation booking)
     {
       booking.BookingDetails.Clear();
       _dbContext.Bookings.Remove(booking);
+
+      await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task UpdateBooking(Reservation booking)
+    {
+      booking.BookingDetails.Clear();
+
+      _dbContext.Entry(booking).State = EntityState.Modified;
+      await _dbContext.SaveChangesAsync();
+
+
+      //Generating details date table
+      DateTime dateToAdd = booking.BookingStartDate;
+      while (dateToAdd <= booking.BookingEndDate)
+      {
+        _dbContext.BookingDetails.Add(new BookingDetail()
+        {
+          BookingID = booking.Id,
+          BookingDate = dateToAdd
+        });
+        dateToAdd = dateToAdd.Date.AddDays(1);
+      }
+      await _dbContext.SaveChangesAsync();
+
+
     }
 
     public async Task<Reservation?> GetBookingAsync(int bookingId)
     {
-      return await _dbContext.Bookings.FirstOrDefaultAsync(a => a.Id == bookingId);
+      return await _dbContext.Bookings.Include(a=> a.BookingDetails).FirstOrDefaultAsync(a => a.Id == bookingId);
     }
 
     public async Task<Reservation?> GetBookingByStartDateAsync(DateTime startDate, int roomId)
     {
-      return await _dbContext.Bookings.FirstOrDefaultAsync(a => a.BookingStartDate == startDate && a.RoomID == roomId);
+      return await _dbContext.Bookings.Include(a => a.BookingDetails).FirstOrDefaultAsync(a => a.BookingStartDate == startDate && a.RoomID == roomId);
     }
 
     public async Task<IEnumerable<Reservation>> GetBookingListAsync(int userId)

@@ -27,7 +27,7 @@ namespace Cancun.Booking.Application.Features.Bookings.Commands.UpdateBooking
     public async Task<Unit> Handle(UpdateBookingCommand request, CancellationToken cancellationToken)
     {
 
-      var bookingToUpdate = await _bookingRepository.GetByIdAsync(request.ID);
+      var bookingToUpdate = await _bookingRepository.GetBookingAsync(request.ID);
       if (bookingToUpdate == null)
       {
         throw new NotFoundException(nameof(Reservation), request.ID);
@@ -44,7 +44,7 @@ namespace Cancun.Booking.Application.Features.Bookings.Commands.UpdateBooking
       else
       {
         _mapper.Map(request, bookingToUpdate, typeof(UpdateBookingCommand), typeof(Reservation));
-        await _bookingRepository.UpdateAsync(bookingToUpdate);
+        await _bookingRepository.UpdateBooking(bookingToUpdate);
       }
 
       return Unit.Value;

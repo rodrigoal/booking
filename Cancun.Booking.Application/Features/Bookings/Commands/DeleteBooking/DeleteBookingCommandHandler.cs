@@ -27,7 +27,7 @@ namespace Cancun.Booking.Application.Features.Bookings.Commands.DeleteBooking
     public async Task<Unit> Handle(DeleteBookingCommand request, CancellationToken cancellationToken)
     {
 
-      var bookingToDelete = await _bookingRepository.GetByIdAsync(request.ID);
+      var bookingToDelete = await _bookingRepository.GetBookingAsync(request.ID);
       if (bookingToDelete == null)
       {
         throw new NotFoundException(nameof(Reservation), request.ID);
@@ -43,7 +43,7 @@ namespace Cancun.Booking.Application.Features.Bookings.Commands.DeleteBooking
       }
       else
       {
-        await _bookingRepository.DeleteAsync(bookingToDelete);
+        await _bookingRepository.DeleteBooking(bookingToDelete);
       }
 
       return Unit.Value;

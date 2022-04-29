@@ -18,7 +18,7 @@ namespace Cancun.Booking.Persistence
     public static IServiceCollection AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
     {
       services.AddDbContext<BookingContext>(options => options.UseSqlServer(
-          configuration.GetConnectionString("ConnectionStrings:BookingConnectionString")
+          configuration.GetConnectionString("BookingConnectionString")
         ));
 
       services.AddScoped(typeof(IAsyncRepository<>), typeof(BaseRepository<>));

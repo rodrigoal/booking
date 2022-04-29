@@ -21,9 +21,13 @@ namespace Cancun.Booking.Persistence.Repositories
       return await _dbContext.Users.Where(a => a.Passport == passport && a.CountryID == countryId).FirstOrDefaultAsync();
     }
 
-    public async Task<int> GetUserID(string userPassport, int countryID)
+    public async Task<int> GetUserID(string passport, int countryID)
     {
-      return (int)(await _dbContext.Users.Where(a => a.Passport == userPassport && a.CountryID == countryID).FirstOrDefaultAsync()).Id;
+
+      if (await GetUserAsync(passport, countryID) == null)
+        await _dbContext.Users.AddAsync(new User() { Passport = passport, CountryID = countryID });
+
+      return (int)(await _dbContext.Users.Where(a => a.Passport == passport && a.CountryID == countryID).FirstOrDefaultAsync()).Id;
     }
   }
 }

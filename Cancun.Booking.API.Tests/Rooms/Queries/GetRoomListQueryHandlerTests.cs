@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Cancun.Booking.API.Tests.Mocks;
+
 using Cancun.Booking.Application.Contracts.Persistence;
 using Cancun.Booking.Application.Features.Rooms.Queries;
 using Cancun.Booking.Application.Profiles;
@@ -7,7 +7,7 @@ using Cancun.Booking.Domain.Entities;
 using Cancun.Booking.Persistence;
 using Cancun.Booking.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Moq;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

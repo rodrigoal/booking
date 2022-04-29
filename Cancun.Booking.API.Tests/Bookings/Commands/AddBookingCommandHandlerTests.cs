@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Cancun.Booking.API.Controllers;
-using Cancun.Booking.API.Tests.Mocks;
 using Cancun.Booking.Application.Contracts.Persistence;
 using Cancun.Booking.Application.Features.Bookings.Commands.AddBooking;
 using Cancun.Booking.Application.Features.Bookings.Queries.GetAvailableDates;
@@ -9,7 +8,6 @@ using Cancun.Booking.Domain.Entities;
 using Cancun.Booking.Persistence;
 using Cancun.Booking.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +22,7 @@ namespace Cancun.Booking.API.Tests.Bookings.Commands
     private readonly IMapper _mapper;
     private readonly IBookingRepository _bookingRepository;
     private readonly IRoomRepository _roomRepository;
+    private readonly IUserRepository _userRepository;
     private readonly BookingContext _bookingContext;
     private DbContextOptions<BookingContext> _dbContextOptions;
 
@@ -51,6 +50,7 @@ namespace Cancun.Booking.API.Tests.Bookings.Commands
       _bookingContext = new BookingContext(_dbContextOptions);
       _bookingRepository = new BookingRepository(_bookingContext);
       _roomRepository = new RoomRepository(_bookingContext);
+      _userRepository = new UserRepository(_bookingContext);
 
       ConfigureDbContext();
     }
@@ -100,7 +100,7 @@ namespace Cancun.Booking.API.Tests.Bookings.Commands
       var passport = "123";
       var countryId = 27;
 
-      var handler = new AddBookingCommandHandler(_mapper, _bookingRepository, _roomRepository);
+      var handler = new AddBookingCommandHandler(_mapper, _bookingRepository, _roomRepository, _userRepository);
       var result = await handler.Handle(new AddBookingCommand()
       {
         RoomID = roomId,

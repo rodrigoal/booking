@@ -42,7 +42,7 @@ namespace Cancun.Booking.Application.Features.Bookings.Commands.UpdateBooking
     private async Task<bool> ExistsBooking(UpdateBookingCommand e, CancellationToken token)
     {
 
-      return ((await _bookingRepository.GetBookingAsync(e.ID)) == null);
+      return ((await _bookingRepository.GetBookingAsync(e.ID)) != null);
     }
 
 

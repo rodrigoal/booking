@@ -16,12 +16,14 @@ namespace Cancun.Booking.Application.Features.Bookings.Commands.AddBooking
     private readonly IMapper _mapper;
     private readonly IBookingRepository _bookingRepository;
     private readonly IRoomRepository _roomRepository;
+    private readonly IUserRepository _userRepository;
 
-    public AddBookingCommandHandler(IMapper mapper, IBookingRepository bookingRepository, IRoomRepository roomRepository)
+    public AddBookingCommandHandler(IMapper mapper, IBookingRepository bookingRepository, IRoomRepository roomRepository, IUserRepository userRepository)
     {
       _mapper = mapper;
       _bookingRepository = bookingRepository;
       _roomRepository = roomRepository;
+      _userRepository = userRepository;
     }
 
     public async Task<AddBookingCommandResponse> Handle(AddBookingCommand request, CancellationToken cancellationToken)
@@ -45,7 +47,9 @@ namespace Cancun.Booking.Application.Features.Bookings.Commands.AddBooking
       else
       {
         var booking = _mapper.Map<Domain.Entities.Reservation>(request);
-        booking = await _bookingRepository.AddAsync(booking);
+        booking.CreatedDate = DateTime.Now;
+        booking.UserID = await _userRepository.GetUserID(request.UserPassport, request.CountryID);
+        booking = await _bookingRepository.AddBooking(booking);
         addBookingCommandResponse.Booking = _mapper.Map<AddBookingDto>(booking);
       }
 

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Cancun.Booking.API.Controllers;
-using Cancun.Booking.API.Tests.Mocks;
+
 using Cancun.Booking.Application.Contracts.Persistence;
 using Cancun.Booking.Application.Features.Bookings.Commands.AddBooking;
 using Cancun.Booking.Application.Features.Bookings.Commands.DeleteBooking;
@@ -10,7 +10,7 @@ using Cancun.Booking.Domain.Entities;
 using Cancun.Booking.Persistence;
 using Cancun.Booking.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Moq;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

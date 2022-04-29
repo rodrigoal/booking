@@ -11,9 +11,10 @@ namespace Cancun.Booking.Application.Contracts.Persistence
 
     Task<Domain.Entities.Reservation?> GetBookingByStartDateAsync(DateTime startDate, int roomId);
 
-    Task AddBooking(Domain.Entities.Reservation booking);
-    void DeleteBooking(Domain.Entities.Reservation booking);
+    Task<Reservation> AddBooking(Domain.Entities.Reservation booking);
+    Task DeleteBooking(Domain.Entities.Reservation booking);
 
+    Task UpdateBooking(Reservation booking);
 
   }
 }

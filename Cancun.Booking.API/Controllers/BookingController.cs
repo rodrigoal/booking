@@ -111,9 +111,7 @@ namespace Cancun.Booking.API.Controllers
       {
         var booking = await _mediator.Send(addBookingCommand);
 
-        return CreatedAtRoute("GetBooking",
-          new { bookingId = booking.Booking.ID, passport = booking.Booking.UserPassport, countryId = booking.Booking.CountryID },
-          booking.Booking);
+        return Ok(booking);
       }
       catch (Exception ex)
       {
