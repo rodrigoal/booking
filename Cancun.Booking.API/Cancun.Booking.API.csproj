@@ -23,10 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Cancun.Booking.Application\Cancun.Booking.Application.csproj" />
     <ProjectReference Include="..\Cancun.Booking.Persistence\Cancun.Booking.Persistence.csproj" />
   </ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using Cancun.Booking.Application.Contracts.Persistence;
+using Cancun.Booking.Application.Exceptions;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,9 @@ namespace Cancun.Booking.Application.Features.Bookings.Queries.GetAvailableDates
     public async Task<IEnumerable<DateTime>> Handle(GetAvailableDatesQuery request, CancellationToken cancellationToken)
     {
       var availableDates = await _bookingRepository.GetEmptyBookingsAsync(request.RoomId);
+      //if (availableDates.Count() == 0)
+      //  throw new NotFoundException(nameof(DateTime), "");
+
       return availableDates;
     }
 

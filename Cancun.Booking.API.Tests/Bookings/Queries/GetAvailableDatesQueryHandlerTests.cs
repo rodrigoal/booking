@@ -22,8 +22,6 @@ namespace Cancun.Booking.API.Tests.Bookings.Queries
   {
     private readonly IMapper _mapper;
     private readonly IBookingRepository _bookingRepository;
-    private readonly IRoomRepository _roomRepository;
-    private readonly BookingController _bookingController;
     private readonly BookingContext _bookingContext;
     private DbContextOptions<BookingContext> _dbContextOptions;
 
@@ -42,7 +40,7 @@ namespace Cancun.Booking.API.Tests.Bookings.Queries
         _mapper = mapper;
       }
 
-      var dbName = $"BookingDB_{DateTime.Now.ToFileTimeUtc()}";
+      var dbName = $"BookingDB_{Guid.NewGuid().ToString()}";
 
       _dbContextOptions = new DbContextOptionsBuilder<BookingContext>()
           .UseInMemoryDatabase(dbName)
@@ -50,7 +48,6 @@ namespace Cancun.Booking.API.Tests.Bookings.Queries
 
       _bookingContext = new BookingContext(_dbContextOptions);
       _bookingRepository = new BookingRepository(_bookingContext);
-      _roomRepository = new RoomRepository(_bookingContext);
 
       ConfigureDbContext();
     }
@@ -98,7 +95,7 @@ namespace Cancun.Booking.API.Tests.Bookings.Queries
     {
       var roomId = 1;
       var handler = new GetAvailableDatesQueryHandler(_bookingRepository);
-      var result = await handler.Handle(new GetAvailableDatesQuery() {  RoomId = roomId }, System.Threading.CancellationToken.None);
+      var result = await handler.Handle(new GetAvailableDatesQuery() { RoomId = roomId }, System.Threading.CancellationToken.None);
 
       Assert.IsType<List<DateTime>>(result);
       Assert.NotEmpty(result);

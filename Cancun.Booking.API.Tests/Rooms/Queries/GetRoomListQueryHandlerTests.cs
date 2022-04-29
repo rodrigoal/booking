@@ -34,7 +34,7 @@ namespace Cancun.Booking.API.Tests.Rooms.Queries
       _mapper = configurationProvider.CreateMapper();
 
 
-      var dbName = $"BookingDB_{DateTime.Now.ToFileTimeUtc()}";
+      var dbName = $"BookingDB_{Guid.NewGuid().ToString()}";
 
       _dbContextOptions = new DbContextOptionsBuilder<BookingContext>()
           .UseInMemoryDatabase(dbName)
