@@ -24,14 +24,17 @@ The API is in development mode and the swagger URL is: https://bookingtestapi.az
 2. Update a reservation;
 3. Delete a reservation;
 4. List my reservations;
-5. List free dates to booking;
+5. List available dates to booking;
 6. List the countries;
 
 # Technical considerations
-1. We are using a mix of Entity Framework and SQL raw; It can improve operations using procedures and functions;
-2. We are using one project, but it was organized using Repositories, Business classes and Controllers;
-3. We are using Models and Entities to separate the concepts that user's can work;
+1. We changed the project to use a clean architecture, providing a separation of concerns.
+2. We are using CQRS and Mediator to make the solution highly scalable.
+3. We created some unit tests for the handlers;
 4. We enable the swagger for just test purposes;
-5. The business classes are validating some rules, but it could be at the sql procedures too;
 6. The code are not properly documented, but if it is necessary, we can do it. We considered that variables names are clear to understand the code.
 7. Starting a new api project is a good opportunity to create a layout using base concepts and services that will be very useful to the following projects;
+
+# References
+1. https://app.pluralsight.com/library/courses/architecting-asp-dot-net-core-applications-best-practices/table-of-contents
+2. https://www.c-sharpcorner.com/article/implementing-a-clean-architecture-in-asp-net-core-6/
